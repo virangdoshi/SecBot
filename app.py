@@ -4,9 +4,9 @@
 import json
 import os
 import openai
-import requests
 
 from slack_bolt import App
+from security import safe_requests
 
 openai.api_key = os.environ.get("OPEN_AI_KEY")
 # Initializes your app with your bot token and signing secret
@@ -31,8 +31,7 @@ def handle_msg(msg):
 
 
 def cve_search(cve):
-    r = requests.get(
-        'https://services.nvd.nist.gov/rest/json/cves/2.0?cveId='+cve)
+    r = safe_requests.get('https://services.nvd.nist.gov/rest/json/cves/2.0?cveId='+cve)
     r = json.loads(r.content)
     r = r['vulnerabilities'][0]['cve']
     # print(r['configurations'])
@@ -45,8 +44,7 @@ def cve_search(cve):
 
 
 def package_cve_search(package):
-    r = requests.get(
-        'https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch='+package)
+    r = safe_requests.get('https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch='+package)
 
     # print(r.content)
     r = json.loads(r.content)
