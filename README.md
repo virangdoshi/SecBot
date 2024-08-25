@@ -11,7 +11,7 @@ Built with:
 * OpenAI lib for python
 
 To run:
-* Setup a Slack app (https://api.slack.com/quickstart). Install the app in your slack workspace
+* Setup a Slack app (https://api.slack.com/tools/bolt-python). Install the app in your slack workspace
 * Get the Oauth Token and signing secret for the Slack app
 * Get an OpenAI API key
 * Export the Oauth Token, signing secret and OpenAI key and launch app.py
