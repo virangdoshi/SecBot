@@ -13,5 +13,6 @@ Built with:
 To run:
 * Setup a Slack app (https://api.slack.com/tools/bolt-python). Install the app in your slack workspace
 * Get the Oauth Token and signing secret for the Slack app
+* This slack bot listens to events. Setup Events and and ngrok endpoint to listen to (https://api.slack.com/tools/bolt-python#events)
 * Get an OpenAI API key
 * Export the Oauth Token, signing secret and OpenAI key and launch app.py
