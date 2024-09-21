@@ -1,33 +1,57 @@
 # export SLACK_BOT_TOKEN=xoxb-your-token
 # export SLACK_SIGNING_SECRET=your-signing-secret
-# export OPEN_AI_KEY
+# export OPENAI_API_KEY=XX
 import json
 import os
-import openai
+from openai import OpenAI
 import requests
 
 from slack_bolt import App
 
-openai.api_key = os.environ.get("OPEN_AI_KEY")
+client = OpenAI()
 # Initializes your app with your bot token and signing secret
 app = App(
     token=os.environ.get("SLACK_BOT_TOKEN"),
     signing_secret=os.environ.get("SLACK_SIGNING_SECRET")
+
 )
 
-
 def handle_msg(msg):
-    response = openai.Completion.create(
-        model="gpt-3.5-turbo-1106",
-        prompt=msg,
-        temperature=0.6,
-        max_tokens=1500,
-        top_p=1,
-        frequency_penalty=1,
-        presence_penalty=1
-    )
+    # msg is the user supplied input
 
-    return "```" + response['choices'][0]['text'] + "```"
+    # Send the user prompt to OpenAI moderation API
+    moderation_user_prompt_response = client.moderations.create(input=msg)
+    res = moderation_user_prompt_response.results[0]
+    print(res)
+    is_flagged = res.flagged
+    details = res.categories.__dict__
+    # Check if the user input is flagged by the moderation API
+    if(is_flagged):
+        print(json.dumps(details, indent=2))
+        return "```"+ "There was a problem between keyboard and chair\n"+json.dumps(details, indent=2) + "```"
+    
+    response = client.chat.completions.create(
+        model="gpt-4o-mini-2024-07-18",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": msg}
+        ],
+        temperature=0.6,
+        max_completion_tokens=150000,
+    )
+    print(response)
+    moderation_openai_prompt_response = client.moderations.create(input=response.choices[0].message.content)
+    res = moderation_openai_prompt_response.results[0]
+    print(res)
+    is_flagged = res.flagged
+    details = res.categories.__dict__
+    # Check if the prompt response is flagged by the moderation API
+    if(is_flagged):
+        print(json.dumps(details, indent=2))
+        return "```"+ "There was a problem with the response\n"+json.dumps(details, indent=2) + "```"
+    
+    res = str(response.choices[0].message.content)
+    return "```" + res + "```"
 
 
 def cve_search(cve):
@@ -182,6 +206,13 @@ def handle_message_events(client, body, event, logger):
 
 # Start your app
 if __name__ == "__main__":
+    # moderation_user_prompt_response = client.moderations.create(input="msg")
+    # res = moderation_user_prompt_response
+    # print(res.results[0].flagged)
+    # print(json.dumps(res.results[0].categories.__dict__, indent=2))
+
+
     app.start(port=int(os.environ.get("PORT", 3000)))
+    
     print(cve_search("CVE-2021-44228"))
     package_cve_search("redis")
