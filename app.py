@@ -20,7 +20,7 @@ def handle_msg(msg):
     # msg is the user supplied input
 
     # Send the user prompt to OpenAI moderation API
-    moderation_user_prompt_response = client.moderations.create(input=msg)
+    moderation_user_prompt_response = client.moderations.create(model="omni-moderation-latest", input=msg)
     res = moderation_user_prompt_response.results[0]
     print(res)
     is_flagged = res.flagged
@@ -46,6 +46,7 @@ def handle_msg(msg):
     )
     print(response)
     moderation_openai_prompt_response = client.moderations.create(
+        model="omni-moderation-latest",
         input=response.choices[0].message.content
     )
     res = moderation_openai_prompt_response.results[0]
