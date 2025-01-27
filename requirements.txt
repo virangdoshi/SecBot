@@ -7,8 +7,8 @@ httpcore==1.0.7
 httpx==0.28.1
 idna==3.10
 jiter==0.8.2
-openai==1.59.6
-pydantic==2.10.5
+openai==1.60.1
+pydantic==2.10.6
 pydantic_core==2.27.2
 slack_bolt==1.22.0
 slack_sdk==3.34.0
