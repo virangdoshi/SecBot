@@ -34,10 +34,14 @@ export PORT=3000  # Optional, defaults to 3000
 
 ### Installation
 1. Clone this repository
-2. Create a virtual environment: `python3 -m venv venv`
-3. Activate it: `source venv/bin/activate`
-4. Install dependencies: `pip install -r requirements.txt`
-5. Run the bot: `./run.sh` or `python3 app.py`
+2. Run automated setup: `./setup.sh`
+3. Set environment variables (see below)
+4. Run the bot: `./run.sh`
+
+The setup script will:
+- Create a virtual environment (`secbot_env/`)
+- Install all dependencies from the locked requirements
+- Verify Python version compatibility
 
 ### Configuration
 Edit `config.json` to customize:
@@ -59,23 +63,38 @@ Edit `config.json` to customize:
 - Monitor API usage to avoid unexpected charges
 - The bot uses OpenAI moderation, but additional safeguards may be needed for production use
 
+## Development
+
+### Commit Signing
+All commits to this repository should be signed with GPG keys for security verification:
+
+```bash
+# Configure git for signed commits
+git config --global commit.gpgsign true
+git config --global user.signingkey YOUR_GPG_KEY_ID
+
+# Verify commits are signed
+git log --show-signature
+```
+
 ## Testing
 
 This project includes comprehensive unit tests and automated quality checks.
 
 ### Running Tests Locally
 
-1. **Quick test run:**
+1. **Automated test suite:**
    ```bash
    ./run_tests.sh
    ```
+   This runs all tests with coverage, linting, type checking, and security scanning.
 
 2. **Manual test execution:**
    ```bash
-   # Install test dependencies
-   pip install pytest pytest-mock pytest-cov responses
+   # Activate virtual environment (created by setup.sh)
+   source secbot_env/bin/activate
    
-   # Set environment variables
+   # Set test environment variables
    export OPENAI_API_KEY="sk-test-key-for-testing-only"
    export SLACK_BOT_TOKEN="xoxb-test-token-for-testing-only"
    export SLACK_SIGNING_SECRET="test-signing-secret-for-testing-only"
@@ -99,7 +118,7 @@ This project includes comprehensive unit tests and automated quality checks.
 
 The project uses GitHub Actions to automatically run tests on every pull request:
 
-- **Test Matrix**: Tests run on Python 3.8, 3.9, 3.10, and 3.11
+- **Test Environment**: Python 3.12 (latest stable version)
 - **Code Quality**: Includes linting (flake8), type checking (mypy), and security scanning (bandit)
 - **Coverage**: Generates coverage reports and comments on PRs
 - **Security**: Runs Trivy vulnerability scanner and dependency checks
