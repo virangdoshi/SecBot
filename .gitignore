@@ -50,6 +50,20 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+# Pytest specific
+pytest.log
+pytest_results.xml
+test-results/
+test_results/
+# Coverage reports
+.coverage.*
+htmlcov/
+coverage/
+cov.xml
+# Test artifacts
+*.pytest_cache
+test_*.log
+test-output/
 
 # Translations
 *.mo
@@ -109,6 +123,11 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+# Test environments
+test_env/
+testing_env/
+.test_env/
+test-env/
 
 # Spyder project settings
 .spyderproject
@@ -167,11 +186,52 @@ keys.json
 # Slack app specific
 slack_app_config.json
 
-# Testing
+# Testing (comprehensive)
 .tox/
 .coverage
 htmlcov/
+# Security scan reports
+bandit-report.json
+bandit.json
+safety-report.json
+pip-audit-report.json
+trivy-results.sarif
+# CI/CD artifacts
+.github/workflows/artifacts/
+test-results-*/
+dependency-scan-results/
+# Linting reports
+flake8-report.txt
+mypy-report.txt
+pylint-report.txt
 
 # Build artifacts
 *.tar.gz
 *.zip
+
+# Development and debugging
+debug.log
+debug_*.log
+*.debug
+.debug/
+# Mock data and fixtures
+mock_data/
+fixtures/
+test_data/
+# Backup files
+*.bak
+*.backup
+*~
+# Editor temporary files
+.#*
+\#*#
+# Local configuration overrides
+config.local.json
+.env.local
+.env.test
+# Performance profiling
+*.prof
+*.profile
+# Memory dumps
+*.dump
+core.*
