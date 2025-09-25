@@ -44,6 +44,8 @@ Edit `config.json` to customize:
 - Keywords to monitor in Slack messages
 - API timeouts and limits
 - OpenAI model settings
+- Security settings (message length limits, package name validation)
+- Alert user ID for keyword notifications (replace `CHANGE_ME_TO_YOUR_SLACK_USER_ID` with your actual Slack user ID)
 
 ## Usage
 - Mention the bot with `@SecBot <message>` to chat with GPT

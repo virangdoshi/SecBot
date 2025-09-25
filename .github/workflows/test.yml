@@ -16,9 +16,17 @@ on:
       - '.gitignore'
       - 'LICENSE'
 
+# Set default permissions for the workflow
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write  # For coverage comments
+      checks: write         # For test results
     strategy:
       matrix:
         python-version: [3.8, 3.9, '3.10', '3.11']
@@ -94,6 +102,9 @@ jobs:
 
   security-scan:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write  # For SARIF upload
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -114,6 +125,8 @@ jobs:
 
   dependency-check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
