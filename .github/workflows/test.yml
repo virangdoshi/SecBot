@@ -25,7 +25,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write  # For coverage comments
       checks: write         # For test results
     strategy:
       matrix:
@@ -91,14 +90,6 @@ jobs:
           coverage.xml
           htmlcov/
           bandit-report.json
-    
-    - name: Comment PR with coverage
-      if: github.event_name == 'pull_request'
-      uses: py-cov-action/python-coverage-comment-action@v3
-      with:
-        GITHUB_TOKEN: ${{ github.token }}
-        MINIMUM_GREEN: 80
-        MINIMUM_ORANGE: 70
 
   security-scan:
     runs-on: ubuntu-latest
