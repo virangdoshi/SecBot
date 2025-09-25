@@ -8,28 +8,28 @@ annotated-types==0.7.0
     # via
     #   -r requirements.txt
     #   pydantic
-anyio==4.8.0
+anyio==4.11.0
     # via
     #   -r requirements.txt
     #   httpx
     #   openai
-certifi==2024.12.14
+certifi==2025.8.3
     # via
     #   -r requirements.txt
     #   httpcore
     #   httpx
     #   requests
-charset-normalizer==3.4.1
+charset-normalizer==3.4.3
     # via requests
 distro==1.9.0
     # via
     #   -r requirements.txt
     #   openai
-h11==0.14.0
+h11==0.16.0
     # via
     #   -r requirements.txt
     #   httpcore
-httpcore==1.0.7
+httpcore==1.0.9
     # via
     #   -r requirements.txt
     #   httpx
@@ -43,7 +43,7 @@ idna==3.10
     #   anyio
     #   httpx
     #   requests
-jiter==0.8.2
+jiter==0.11.0
     # via
     #   -r requirements.txt
     #   openai
@@ -74,12 +74,12 @@ tqdm==4.67.1
     # via
     #   -r requirements.txt
     #   openai
-typing-extensions==4.12.2
+typing-extensions==4.15.0
     # via
     #   -r requirements.txt
     #   anyio
     #   openai
     #   pydantic
     #   pydantic-core
-urllib3==2.3.0
+urllib3==2.5.0
     # via requests
