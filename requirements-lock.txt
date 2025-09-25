@@ -8,31 +8,31 @@ annotated-types==0.7.0
     # via
     #   -r requirements.txt
     #   pydantic
-anyio==4.8.0
+anyio==4.9.0
     # via
     #   -r requirements.txt
     #   httpx
     #   openai
-certifi==2024.12.14
+certifi==2025.1.31
     # via
     #   -r requirements.txt
     #   httpcore
     #   httpx
     #   requests
-charset-normalizer==3.4.1
+charset-normalizer==3.4.3
     # via requests
+coverage[toml]==7.10.7
+    # via pytest-cov
 distro==1.9.0
     # via
     #   -r requirements.txt
     #   openai
-h11==0.14.0
+h11==0.16.0
     # via
     #   -r requirements.txt
     #   httpcore
-httpcore==1.0.7
-    # via
-    #   -r requirements.txt
-    #   httpx
+httpcore==1.0.9
+    # via httpx
 httpx==0.28.1
     # via
     #   -r requirements.txt
@@ -43,13 +43,19 @@ idna==3.10
     #   anyio
     #   httpx
     #   requests
-jiter==0.8.2
+iniconfig==2.1.0
+    # via pytest
+jiter==0.9.0
     # via
     #   -r requirements.txt
     #   openai
-openai==1.109.0
+openai==1.66.3
     # via -r requirements.txt
-pydantic==2.10.5
+packaging==25.0
+    # via pytest
+pluggy==1.6.0
+    # via pytest
+pydantic==2.10.6
     # via
     #   -r requirements.txt
     #   openai
@@ -57,7 +63,22 @@ pydantic-core==2.27.2
     # via
     #   -r requirements.txt
     #   pydantic
+pytest==8.3.4
+    # via
+    #   -r requirements.txt
+    #   pytest-cov
+    #   pytest-mock
+pytest-cov==6.0.0
+    # via -r requirements.txt
+pytest-mock==3.14.0
+    # via -r requirements.txt
+pyyaml==6.0.2
+    # via responses
 requests==2.32.5
+    # via
+    #   -r requirements.txt
+    #   responses
+responses==0.25.3
     # via -r requirements.txt
 slack-bolt==1.22.0
     # via -r requirements.txt
@@ -81,5 +102,8 @@ typing-extensions==4.12.2
     #   openai
     #   pydantic
     #   pydantic-core
-urllib3==2.3.0
-    # via requests
+urllib3==2.5.0
+    # via
+    #   -r requirements.txt
+    #   requests
+    #   responses

@@ -21,7 +21,7 @@ source venv/bin/activate
 # Install/upgrade dependencies
 echo "📥 Installing dependencies..."
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install -r requirements-lock.txt
 
 # Install additional testing tools
 echo "🛠️  Installing testing tools..."

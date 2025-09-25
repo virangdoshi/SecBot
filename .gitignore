@@ -59,13 +59,14 @@ test-results/
 test_results/
 test_*.log
 test-output/
-test_reports/
+# Test environments
 test_env/
 test_env_py312/
 testing_env/
 .test_env/
 test-env/
 test_env_*/
+secbot_env/
 .venv/
 venv/
 env/
