@@ -200,6 +200,9 @@ trivy-results.sarif
 .github/workflows/artifacts/
 test-results-*/
 dependency-scan-results/
+# Dependency review artifacts
+dependency-review-*/
+.dependency-review/
 # Linting reports
 flake8-report.txt
 mypy-report.txt

@@ -1,16 +1,79 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+# Dependabot configuration for SecBot
+# Automatically keeps dependencies updated and secure
+# Works in conjunction with dependency-review workflow
 
 version: 2
 updates:
-  - package-ecosystem: "pip" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "pip"
+    directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    
+    # Security updates
+    open-pull-requests-limit: 10
+    
+    # Grouping strategy for cleaner PRs
     groups:
-      all:
-        patterns: 
-         - "*"
+      # Group all production dependencies
+      production:
+        patterns:
+          - "openai"
+          - "slack-bolt"
+          - "slack-sdk"
+          - "requests"
+          - "pydantic*"
+        
+      # Group all testing dependencies  
+      testing:
+        patterns:
+          - "pytest*"
+          - "responses"
+        
+      # Group all other dependencies
+      others:
+        patterns:
+          - "*"
+    
+    # PR configuration
+    reviewers:
+      - "virangdoshi"
+    
+    # Commit message configuration
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    
+    # Ignore specific dependencies if needed
+    ignore:
+      # Ignore major version updates for stable dependencies
+      - dependency-name: "python"
+        update-types: ["version-update:semver-major"]
+    
+    # Labels for PRs
+    labels:
+      - "dependencies"
+      - "security"
+
+  # GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+      timezone: "UTC"
+    
+    open-pull-requests-limit: 5
+    
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    
+    labels:
+      - "github-actions"
+      - "ci"
 
