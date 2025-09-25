@@ -17,5 +17,10 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: ${{ fromJSON(github.event.inputs.client_payload).payload.runner_setup.timeout_minutes }}
     steps:
+    - name: Harden the runner (Audit all outbound calls)
+      uses: step-security/harden-runner@v2
+      with:
+        egress-policy: audit
+
     - name: ${{ fromJSON( inputs.client_payload ).payload.workflow_job_name }}
       uses: jitsecurity-controls/jit-github-action@latest
