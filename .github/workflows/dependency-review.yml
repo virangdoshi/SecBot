@@ -1,0 +1,39 @@
+name: Dependency Review
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+
+# Set permissions for the workflow
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v4
+      with:
+        # Fail the action if vulnerabilities are found
+        fail-on-severity: moderate
+        # Allow licenses (common open source licenses)
+        allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, GPL-3.0, LGPL-2.1, LGPL-3.0
+        # Deny problematic licenses
+        deny-licenses: AGPL-1.0, AGPL-3.0, GPL-2.0
+        # Comment on PR with review results
+        comment-summary-in-pr: always
+        # Retry configuration
+        retry-on-snapshot-warnings: true
+        retry-on-snapshot-warnings-timeout: 120
+        # Additional configuration
+        vulnerability-check: true
+        license-check: true

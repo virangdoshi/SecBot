@@ -25,5 +25,8 @@
   "openai_model": "gpt-4o-mini",
   "moderation_model": "omni-moderation-latest",
   "request_timeout": 10,
-  "max_completion_tokens": 150000
+  "max_completion_tokens": 150000,
+  "max_message_length": 2000,
+  "max_package_length": 100,
+  "alert_user_id": "CHANGE_ME_TO_YOUR_SLACK_USER_ID"
 }

@@ -7,8 +7,16 @@ logger = logging.getLogger(__name__)
 def cve_search(config: Dict[str, Any], cve: str) -> str:
     """Search for CVE details from NIST database."""
     try:
-        # Validate CVE format (basic check)
-        if not cve.upper().startswith("CVE-"):
+        # Input validation
+        if not cve or not cve.strip():
+            return "Please provide a valid CVE ID."
+        
+        cve = cve.strip().upper()
+        
+        # Validate CVE format (strict check)
+        import re
+        cve_pattern = r'^CVE-\d{4}-\d{4,}$'
+        if not re.match(cve_pattern, cve):
             return "Invalid CVE format. Please provide a CVE ID like CVE-2021-44228."
 
         r = requests.get(f"https://services.nvd.nist.gov/rest/json/cves/2.0?cveId={cve}", timeout=config["request_timeout"])
@@ -42,11 +50,21 @@ def cve_search(config: Dict[str, Any], cve: str) -> str:
 def package_cve_search(config: Dict[str, Any], package: str) -> str:
     """Search for package vulnerabilities from NIST database."""
     try:
-        # Basic input validation
+        # Input validation and sanitization
         if not package or not package.strip():
             return "Please provide a valid package name."
 
         package = package.strip()
+        
+        # Limit package name length to prevent abuse
+        max_package_length = config.get("max_package_length", 100)
+        if len(package) > max_package_length:
+            return f"Package name too long. Please limit to {max_package_length} characters."
+        
+        # Basic sanitization - remove potentially dangerous characters
+        import re
+        if not re.match(r'^[a-zA-Z0-9._-]+$', package):
+            return "Invalid package name. Only alphanumeric characters, dots, underscores, and hyphens are allowed."
         r = requests.get(
             f"https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch={package}",
             timeout=config["request_timeout"]

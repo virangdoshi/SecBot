@@ -10,9 +10,19 @@ from utils import cve_search, package_cve_search
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Load configuration
-with open("config.json", "r") as f:
-    config = json.load(f)
+# Load configuration with error handling
+try:
+    with open("config.json", "r", encoding="utf-8") as f:
+        config = json.load(f)
+except FileNotFoundError:
+    logger.error("config.json file not found")
+    raise
+except json.JSONDecodeError as e:
+    logger.error(f"Invalid JSON in config.json: {e}")
+    raise
+except Exception as e:
+    logger.error(f"Error loading config.json: {e}")
+    raise
 
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 # Initializes your app with your bot token and signing secret
@@ -124,7 +134,7 @@ def handle_message_events(client, body, event, logger):
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": "Hey <@U04D73CNNDV>, check this out ^",
+                                "text": f"Hey <@{config.get('alert_user_id', 'UNKNOWN_USER')}>, check this out ^",
                             },
                         },
                         {"type": "divider"},

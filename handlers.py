@@ -7,6 +7,14 @@ logger = logging.getLogger(__name__)
 def handle_msg(client: OpenAI, config: Dict[str, Any], msg: str) -> str:
     """Handle user message with OpenAI moderation and chat completion."""
     try:
+        # Input validation
+        if not msg or not msg.strip():
+            return "Please provide a valid message."
+        
+        # Limit message length to prevent abuse
+        max_message_length = config.get("max_message_length", 2000)
+        if len(msg) > max_message_length:
+            return f"Message too long. Please limit to {max_message_length} characters."
         # Send the user prompt to OpenAI moderation API
         moderation_user_prompt_response = client.moderations.create(model=config["moderation_model"], input=msg)
         res = moderation_user_prompt_response.results[0]
