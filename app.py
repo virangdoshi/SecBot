@@ -1,115 +1,25 @@
-# export SLACK_BOT_TOKEN=xoxb-your-token
-# export SLACK_SIGNING_SECRET=your-signing-secret
-# export OPENAI_API_KEY=XX
 import json
 import os
+import logging
 from openai import OpenAI
-import requests
-
 from slack_bolt import App
+from handlers import handle_msg
+from utils import cve_search, package_cve_search
 
-client = OpenAI()
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Load configuration
+with open("config.json", "r") as f:
+    config = json.load(f)
+
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 # Initializes your app with your bot token and signing secret
 app = App(
     token=os.environ.get("SLACK_BOT_TOKEN"),
     signing_secret=os.environ.get("SLACK_SIGNING_SECRET"),
 )
-
-
-def handle_msg(msg):
-    # msg is the user supplied input
-
-    # Send the user prompt to OpenAI moderation API
-    moderation_user_prompt_response = client.moderations.create(model="omni-moderation-latest", input=msg)
-    res = moderation_user_prompt_response.results[0]
-    print(res)
-    is_flagged = res.flagged
-    details = res.categories.__dict__
-    # Check if the user input is flagged by the moderation API
-    if is_flagged:
-        print(json.dumps(details, indent=2))
-        return (
-            "```"
-            + "There was a problem between keyboard and chair\n"
-            + json.dumps(details, indent=2)
-            + "```"
-        )
-
-    response = client.chat.completions.create(
-        model="gpt-4o-mini-2024-07-18",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": msg},
-        ],
-        temperature=0.6,
-        max_completion_tokens=150000,
-    )
-    print(response)
-    moderation_openai_prompt_response = client.moderations.create(
-        model="omni-moderation-latest",
-        input=response.choices[0].message.content
-    )
-    res = moderation_openai_prompt_response.results[0]
-    print(res)
-    is_flagged = res.flagged
-    details = res.categories.__dict__
-    # Check if the prompt response is flagged by the moderation API
-    if is_flagged:
-        print(json.dumps(details, indent=2))
-        return (
-            "```"
-            + "There was a problem with the response\n"
-            + json.dumps(details, indent=2)
-            + "```"
-        )
-
-    res = str(response.choices[0].message.content)
-    return "```" + res + "```"
-
-
-def cve_search(cve):
-    r = requests.get("https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=" + cve)
-    r = json.loads(r.content)
-    r = r["vulnerabilities"][0]["cve"]
-    # print(r['configurations'])
-    vuln_name = r["cisaVulnerabilityName"]
-    vuln_description = r["descriptions"][0]["value"]
-    vuln_references = r["references"]
-    return str(
-        "```"
-        + vuln_name
-        + "```"
-        + "\n"
-        + "```"
-        + vuln_description
-        + "```"
-        + "\n"
-        + "```"
-        + str(vuln_references[0]["url"])
-        + "```"
-    )
-
-
-def package_cve_search(package):
-    r = requests.get(
-        "https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch=" + package
-    )
-
-    # print(r.content)
-    r = json.loads(r.content)
-    r = r["vulnerabilities"]
-    # print(r[0])
-
-    json_formatted_str = json.dumps(r[0], indent=4)
-    print(json_formatted_str)
-    s = ""
-    for entry in r:
-        # print(entry['cve'])
-        s += "```" + entry["cve"]["id"] + "\n"
-        s += entry["cve"]["descriptions"][0]["value"] + "```\n\n"
-
-    return s
-    # print(r.keys())
 
 
 # Add functionality here
@@ -161,71 +71,70 @@ def update_home_tab(client, event, logger):
 
 @app.event("app_mention")
 def respond_to_mention(client, event, logger):
+    try:
+        msg = event["blocks"][0]["elements"][0]["elements"][1]["text"]
+        parts = msg.strip().split()
+        if not parts:
+            res = "Please provide a command. Available commands: cve_search <CVE-ID>, package_search <package-name>, or any other query for ChatGPT."
+        elif parts[0] == "cve_search":
+            if len(parts) < 2:
+                res = "Please provide a CVE ID after cve_search, e.g., cve_search CVE-2021-44228."
+            else:
+                res = cve_search(config, parts[1])
+        elif parts[0] == "package_search":
+            if len(parts) < 2:
+                res = "Please provide a package name after package_search, e.g., package_search redis."
+            else:
+                res = package_cve_search(config, " ".join(parts[1:]))
+        else:
+            res = handle_msg(client, config, msg)
 
-    msg = event["blocks"][0]["elements"][0]["elements"][1]["text"]
-
-    if msg.split()[0] == "cve_search":
-        res = cve_search(msg.split()[1])
-
-    elif msg.split()[0] == "package_search":
-        res = package_cve_search((msg.split()[1]))
-    else:
-        res = handle_msg(msg)
-
-    client.chat_postMessage(
-        channel=event["channel"],
-        thread_ts=event["ts"],
-        text=res,
-        parse="full",
-    )
+        client.chat_postMessage(
+            channel=event["channel"],
+            thread_ts=event["ts"],
+            text=res,
+            parse="full",
+        )
+    except Exception as e:
+        logger.error(f"Error in respond_to_mention: {e}")
+        client.chat_postMessage(
+            channel=event["channel"],
+            thread_ts=event["ts"],
+            text="An error occurred while processing your request.",
+            parse="full",
+        )
 
 
 # TODO add SaaS vendors to this list
-keywords = [
-    "test",
-    "java",
-    "python",
-    "supply",
-    "chain",
-    "github",
-    "macos",
-    "snyk",
-    "cve",
-    "pypi",
-    "package",
-]
+keywords = config["keywords"]
 
 
 @app.event("message")
 def handle_message_events(client, body, event, logger):
-    # print(json.dumps(body, indent=4))
-    print(body["event"]["text"])
-    for word in keywords:
-        if word.lower() in body["event"]["text"].lower():
-            client.chat_postMessage(
-                channel=event["channel"],
-                thread_ts=event["ts"],
-                blocks=[
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "Hey <@U04D73CNNDV>, check this out ^",
+    try:
+        message_text = body["event"]["text"]
+        logger.info(f"Received message: {message_text}")
+        for word in keywords:
+            if word.lower() in message_text.lower():
+                client.chat_postMessage(
+                    channel=event["channel"],
+                    thread_ts=event["ts"],
+                    blocks=[
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": "Hey <@U04D73CNNDV>, check this out ^",
+                            },
                         },
-                    },
-                    {"type": "divider"},
-                ],
-            )
+                        {"type": "divider"},
+                    ],
+                )
+                break  # Only ping once per message
+    except Exception as e:
+        logger.error(f"Error in handle_message_events: {e}")
 
 
 # Start your app
 if __name__ == "__main__":
-    # moderation_user_prompt_response = client.moderations.create(input="msg")
-    # res = moderation_user_prompt_response
-    # print(res.results[0].flagged)
-    # print(json.dumps(res.results[0].categories.__dict__, indent=2))
-
     app.start(port=int(os.environ.get("PORT", 3000)))
-
-    print(cve_search("CVE-2021-44228"))
-    package_cve_search("redis")
